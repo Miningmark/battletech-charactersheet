@@ -53,10 +53,15 @@ export const GlobalStyles = createGlobalStyle`
         width: 100vw;
     }
 
-    p{
+    p,td,th{
         font-family: Helvetica, sans-serif;
         font-weight: 400;
         font-size: 1.125rem;
+        margin: 5px;
+
+        @media (max-width: 800px) {
+            font-size: 0.8rem;
+        }
     }
 
     h1{
@@ -74,6 +79,8 @@ export const GlobalStyles = createGlobalStyle`
         font-family: Tahoma;
         font-weight: 600;
         font-size: 2rem;
+        margin: 0;
+        padding: 10px;
     }
 
     h3{
@@ -81,6 +88,8 @@ export const GlobalStyles = createGlobalStyle`
         font-family: Tahoma;
         font-weight: 600;
         font-size: 1.75rem;
+        margin: 0;
+        padding: 5px;
     }
 
   

@@ -122,6 +122,9 @@ export default function PageHeader({ toggleTheme, theme }) {
         <MenuLink href="/" $active={pathname === "/" ? 1 : 0}>
           Home
         </MenuLink>
+        <MenuLink href="/newCharacter" $active={pathname === "/newCharacter" ? 1 : 0}>
+          New Character
+        </MenuLink>
         <DarkLightModeWrapper>
           <ThemeToggle toggleTheme={toggleTheme} theme={theme} />
         </DarkLightModeWrapper>
