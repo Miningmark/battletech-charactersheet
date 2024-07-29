@@ -1,6 +1,6 @@
 import Link from "next/link";
 import styled from "styled-components";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useRouter } from "next/router";
 import ThemeToggle from "@/components/menu/DarkLightMode";
 

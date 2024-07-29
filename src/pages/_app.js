@@ -1,7 +1,8 @@
-import styled from "styled-components";
 import { useState, useEffect } from "react";
 import { ThemeProvider } from "styled-components";
 import Head from "next/head";
+
+//Components
 import { lightTheme, darkTheme, GlobalStyles } from "@/lib/style/themeConfig";
 import PageHeader from "@/components/menu/PageHeader";
 
@@ -51,7 +52,9 @@ export default function App({ Component, pageProps }) {
       <ThemeProvider theme={theme === "light" ? lightTheme : darkTheme}>
         <GlobalStyles />
         <PageHeader toggleTheme={toggleTheme} theme={theme} />
-        <Component {...pageProps} />
+        <main>
+          <Component {...pageProps} />
+        </main>
       </ThemeProvider>
     </>
   );

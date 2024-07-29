@@ -48,17 +48,9 @@ export const GlobalStyles = createGlobalStyle`
         flex-direction: column;
         align-items: center;
         background: ${({ theme }) => theme.backgroundColor1};
-
         color: ${({ theme }) => theme.text};
         font-family: Helvetica, sans-serif;
-        font-size: large;
-        
-
         width: 100vw;
-        min-height: 100vh;
-            
-        overflow-y: auto;
-        overflow-x: hidden;
     }
 
     p{
@@ -84,7 +76,7 @@ export const GlobalStyles = createGlobalStyle`
         font-size: 2rem;
     }
 
-    h2{
+    h3{
         color: ${({ theme }) => theme.primaryColor};
         font-family: Tahoma;
         font-weight: 600;
