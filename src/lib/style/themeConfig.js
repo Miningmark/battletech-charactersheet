@@ -34,6 +34,8 @@ export const GlobalStyles = createGlobalStyle`
         --success: #388E3C;
         --light-success: #BBF7D0;
 
+        
+
     }
 
     html {
@@ -50,7 +52,10 @@ export const GlobalStyles = createGlobalStyle`
         background: ${({ theme }) => theme.backgroundColor1};
         color: ${({ theme }) => theme.text};
         font-family: Helvetica, sans-serif;
-        width: 100vw;
+        box-sizing: border-box;
+    }
+    #__next{
+        width: 100%;
     }
 
     p,td,th{

@@ -16,13 +16,14 @@ const StyledHeader = styled.header`
 
 const StyledMenu = styled.nav`
   position: relative;
-  width: 100vw;
+  width: 100%;
   height: 56px;
   display: flex;
   justify-content: center;
   align-items: center;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   background-color: ${({ theme }) => theme.backgroundColor2};
+  overflow-x: hidden;
 
   @media (max-width: 800px) {
     display: none;
