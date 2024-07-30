@@ -420,6 +420,7 @@ export default function NewCharacter({ addCharacter }) {
                     <button onClick={() => updateDamage("fatigueDamage", 1)}>+1</button>
                   </div>
                 </div>
+                <p>stun: checkbox, unconscious: checkbox</p>
                 <br />
                 <p>Movement:</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
@@ -432,7 +433,7 @@ export default function NewCharacter({ addCharacter }) {
                 </div>
               </div>
               <br />
-
+              <p>Personal Armor noch nicht fertig</p>
               <StyledTable>
                 <StyledTableHead>
                   <tr>
