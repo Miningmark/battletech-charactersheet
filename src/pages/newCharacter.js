@@ -1,5 +1,6 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useRouter } from "next/router";
 
 //Components
 import Dropdown from "@/components/menu/elements/Dropdown";
@@ -14,8 +15,10 @@ import {
 } from "@/components/StyledComponents";
 
 import { skillList } from "@/lib/skillList";
+import { calculateLevel, calculateScore } from "@/lib/calculateValues";
 
-export default function NewCharacter() {
+export default function NewCharacter({ addCharacter }) {
+  const router = useRouter();
   const [personalData, setPersonalData] = useState({
     name: "",
     height: "",
@@ -27,18 +30,20 @@ export default function NewCharacter() {
     extra: "",
   });
   const [attributes, setAttributes] = useState({
-    strXP: 0,
-    bodXP: 0,
-    rflXP: 0,
-    dexXP: 0,
-    intXP: 0,
-    wilXP: 0,
-    chaXP: 0,
-    edgXP: 0,
+    str: { xp: 0, score: 0 },
+    bod: { xp: 0, score: 0 },
+    rfl: { xp: 0, score: 0 },
+    dex: { xp: 0, score: 0 },
+    int: { xp: 0, score: 0 },
+    wil: { xp: 0, score: 0 },
+    cha: { xp: 0, score: 0 },
+    edg: { xp: 0, score: 0 },
   });
 
   const [combatData, setCombatData] = useState({
+    standardDamageMax: "",
     standardDamage: "",
+    fatigueDamageMax: "",
     fatigueDamage: "",
     stun: false,
     unconscious: false,
@@ -55,6 +60,47 @@ export default function NewCharacter() {
   const [skills, setSkills] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [subskill, setSubskill] = useState("");
+  const [biography, setBiography] = useState([]);
+  const [inventory, setInventory] = useState([]);
+  const [cbills, setCbills] = useState(0);
+  const [vehicles, setVehicles] = useState([]);
+
+  useEffect(() => {
+    // Ensure skills are properly set up
+    const runningSkill = skills.find((skill) => skill.name === "running")?.level || 0;
+    const climbingSkill = skills.find((skill) => skill.name === "climbing")?.level || 0;
+    const swimmingSkill = skills.find((skill) => skill.name === "swimming")?.level || 0;
+
+    // Calculate values
+    const { str, bod, rfl, wil } = attributes;
+
+    const standardDamageMax = bod.score * 3;
+    const standardDamage = standardDamageMax;
+    const fatigueDamageMax = wil.score * 3;
+    const fatigueDamage = fatigueDamageMax;
+
+    const walk = str.score + rfl.score;
+    const runEvade = 10 + walk + runningSkill;
+    const sprint = runEvade * 2;
+    const climb = Math.ceil(walk / 2 + climbingSkill);
+    const crawl = Math.ceil(walk / 4);
+    const swim = walk + swimmingSkill;
+
+    // Update combatData with calculated values
+    setCombatData((prevData) => ({
+      ...prevData,
+      standardDamageMax,
+      standardDamage,
+      fatigueDamageMax,
+      fatigueDamage,
+      walk,
+      runEvade,
+      sprint,
+      climb,
+      crawl,
+      swim,
+    }));
+  }, [attributes, skills]);
 
   function handleChangePersonalData(e) {
     const { name, value } = e.target;
@@ -62,16 +108,20 @@ export default function NewCharacter() {
       ...prevData,
       [name]: value,
     }));
-    console.log(personalData);
   }
 
-  function handleChangeAttributes(e) {
+  const handleChangeAttributes = (e) => {
     const { name, value } = e.target;
+    const attribute = name.replace("XP", "").toLowerCase();
+
     setAttributes((prevAttributes) => ({
       ...prevAttributes,
-      [name]: Number(value),
+      [attribute]: {
+        xp: Number(value),
+        score: calculateScore(Number(value)),
+      },
     }));
-  }
+  };
 
   function handleAddTrait() {
     setTraits((prevTraits) => [...prevTraits, { trait: "New Trait", tp: 0, pageRef: "", xp: 0 }]);
@@ -122,27 +172,110 @@ export default function NewCharacter() {
     setSkills(updatedSkills);
   };
 
-  function calculateScore(xp) {
-    if (xp >= 0) {
-      return Math.floor(xp / 100);
-    } else {
-      return Math.ceil(xp / 100);
-    }
+  const updateDamage = (type, amount) => {
+    setCombatData((prevData) => {
+      const currentValue = prevData[type];
+      const maxValue = prevData[`${type}Max`];
+
+      const newValue = Math.min(Math.max(0, currentValue + amount), maxValue);
+
+      return {
+        ...prevData,
+        [type]: newValue,
+      };
+    });
+  };
+
+  const handleAddLiveEvent = () => {
+    setBiography([...biography, { lifeEvent: "", age: "", notes: "" }]);
+  };
+
+  const handleDeleteLiveEvent = (index) => {
+    setBiography(biography.filter((_, i) => i !== index));
+  };
+
+  const handleInputChangeLiveEvent = (index, field, value) => {
+    const updatedBiography = biography.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    );
+    setBiography(updatedBiography);
+  };
+
+  const handleAddInventoryItem = () => {
+    const newItem = {
+      equipment: "New Item",
+      qty: 0,
+      active: false,
+      weight: 0,
+      cBills: 0,
+      page: "",
+      notes: "",
+    };
+    setInventory([...inventory, newItem]);
+  };
+
+  const handleDeleteInventoryItem = (index) => {
+    setInventory(inventory.filter((_, i) => i !== index));
+  };
+
+  const handleInventoryInputChange = (index, field, value) => {
+    const updatedInventory = inventory.map((item, i) =>
+      i === index ? { ...item, [field]: value } : item
+    );
+    setInventory(updatedInventory);
+  };
+
+  const handleInventoryCheckboxChange = (index, field) => {
+    const updatedInventory = inventory.map((item, i) =>
+      i === index ? { ...item, [field]: !item[field] } : item
+    );
+    setInventory(updatedInventory);
+  };
+
+  const handleAddVehicle = () => {
+    const newVehicle = {
+      modelName: "New Vehicle",
+      type: "",
+      mass: 0,
+      traits: "",
+      notes: "",
+    };
+    setVehicles([...vehicles, newVehicle]);
+  };
+
+  const handleDeleteVehicle = (index) => {
+    setVehicles(vehicles.filter((_, i) => i !== index));
+  };
+
+  const handleVehicleInputChange = (index, field, value) => {
+    const updatedVehicles = vehicles.map((vehicle, i) =>
+      i === index ? { ...vehicle, [field]: value } : vehicle
+    );
+    setVehicles(updatedVehicles);
+  };
+
+  function generateId() {
+    const timestamp = Date.now();
+    return timestamp;
   }
 
-  function calculateLevel(xp) {
-    const xpThresholds = [30, 50, 80, 120, 170, 230, 300, 380, 470, 570];
-    let level = 0;
+  function handleSubmit() {
+    const character = {
+      id: generateId(),
+      personalData,
+      attributes,
+      combatData,
+      traits,
+      skills,
+      biography,
+      inventory,
+      cbills,
+      vehicles,
+    };
+    console.log("Character submitted:", character);
 
-    for (let i = 0; i < xpThresholds.length; i++) {
-      if (xp >= xpThresholds[i]) {
-        level = i + 1;
-      } else {
-        break;
-      }
-    }
-
-    return level;
+    addCharacter(character);
+    router.push("/");
   }
 
   return (
@@ -151,7 +284,7 @@ export default function NewCharacter() {
       <CharacterWrapper>
         <CharacterContainer>
           <Columns2>
-            <div style={{ display: "flex", flexDirection: "column", gap: "20px" }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: "20px", width: "100%" }}>
               <StyledSectionComponent>
                 <div>
                   <h2>PERSONAL DATA</h2>
@@ -233,28 +366,28 @@ export default function NewCharacter() {
               <StyledSectionComponent>
                 <h2>ATTRIBUTES</h2>
 
-                <table>
-                  <thead>
+                <StyledTable>
+                  <StyledTableHead>
                     <tr>
                       <th>Attribute</th>
                       <th>Score</th>
                       <th>Link</th>
                       <th>XP</th>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {Object.entries(attributes).map(([key, xp]) => {
-                      const attribute = key.replace("XP", "").toUpperCase();
+                  </StyledTableHead>
+                  <StyledTableBody>
+                    {Object.entries(attributes).map(([key, { xp, score }]) => {
+                      const attribute = key.toUpperCase();
                       return (
                         <tr key={key}>
                           <td>{attribute}</td>
-                          <td>{calculateScore(xp)}</td>
+                          <td>{score}</td>
                           <td>-</td>
                           <td>
                             <input
                               type="number"
                               min="0"
-                              name={key}
+                              name={`${key}XP`}
                               value={xp}
                               onChange={handleChangeAttributes}
                             />
@@ -262,78 +395,43 @@ export default function NewCharacter() {
                         </tr>
                       );
                     })}
-                  </tbody>
-                </table>
+                  </StyledTableBody>
+                </StyledTable>
               </StyledSectionComponent>
             </div>
 
             <StyledSectionComponent>
               <h2>COMBAT DATA</h2>
-              <table>
-                <thead>
-                  <tr>
-                    <th colSpan="2">Condition Monitor</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Standard Damage:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Fatigue Damage:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td colSpan="2">
-                      Stun: <input type="checkbox" /> Unconscious: <input type="checkbox" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <th colSpan="2">Movement (Meters per Turn)</th>
-                  </tr>
-                  <tr>
-                    <td>Walk:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Run/Evade:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Sprint:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Climb:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Crawl:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>Swim:</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
+              <div>
+                <p>Condition Monitor</p>
+                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <p>
+                      Standard Damage: {combatData.standardDamage}/{combatData.standardDamageMax}
+                    </p>
+                    <button onClick={() => updateDamage("standardDamage", -1)}>-1</button>
+                    <button onClick={() => updateDamage("standardDamage", 1)}>+1</button>
+                  </div>
+                  <div style={{ display: "flex", gap: "10px" }}>
+                    <p>
+                      Fatigue Damage: {combatData.fatigueDamage}/{combatData.fatigueDamageMax}
+                    </p>
+                    <button onClick={() => updateDamage("fatigueDamage", -1)}>-1</button>
+                    <button onClick={() => updateDamage("fatigueDamage", 1)}>+1</button>
+                  </div>
+                </div>
+                <br />
+                <p>Movement:</p>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
+                  <p>Walk: {combatData.walk} m</p>
+                  <p>Run Evade: {combatData.runEvade} m</p>
+                  <p>Sprint: {combatData.sprint} m</p>
+                  <p>Climb: {combatData.climb} m</p>
+                  <p>Crawl: {combatData.crawl} m</p>
+                  <p>Swim: {combatData.swim} m</p>
+                </div>
+              </div>
+              <br />
 
               <StyledTable>
                 <StyledTableHead>
@@ -361,8 +459,8 @@ export default function NewCharacter() {
                   </tr>
                 </StyledTableBody>
               </StyledTable>
-
-              <h3>Weapon</h3>
+              <br />
+              <p>Weapons</p>
               <StyledTable>
                 <StyledTableHead>
                   <tr>
@@ -429,7 +527,13 @@ export default function NewCharacter() {
               <StyledTableBody>
                 {traits.map((trait, index) => (
                   <tr key={index}>
-                    <td>{trait.trait}</td>
+                    <td>
+                      <input
+                        type="text"
+                        value={trait.trait}
+                        onChange={(e) => handleChangeTrait(index, "trait", e.target.value)}
+                      />
+                    </td>
                     <td>{calculateScore(trait.xp)}</td>
                     <td>
                       <input
@@ -504,6 +608,204 @@ export default function NewCharacter() {
               <button onClick={handleAddSkill}>Add Skill</button>
             </div>
           </StyledSectionComponent>
+
+          <StyledSectionComponent>
+            <h2>BIOGRAPHY</h2>
+            <StyledTable>
+              <StyledTableHead>
+                <tr>
+                  <th>Life Event</th>
+                  <th>Age</th>
+                  <th>Other Notes</th>
+                  <th> </th>
+                </tr>
+              </StyledTableHead>
+              <StyledTableBody>
+                {biography.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.lifeEvent}
+                        onChange={(e) =>
+                          handleInputChangeLiveEvent(index, "lifeEvent", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={item.age}
+                        onChange={(e) => handleInputChangeLiveEvent(index, "age", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.notes}
+                        onChange={(e) => handleInputChangeLiveEvent(index, "notes", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <button onClick={() => handleDeleteLiveEvent(index)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </StyledTableBody>
+            </StyledTable>
+            <button onClick={handleAddLiveEvent}>Add Life Event</button>
+          </StyledSectionComponent>
+
+          <StyledSectionComponent>
+            <h2>INVENTORY</h2>
+            <p>C-Bills: {cbills}</p>
+            <StyledTable>
+              <StyledTableHead>
+                <tr>
+                  <th>Active</th>
+                  <th>Equipment</th>
+                  <th>Qty</th>
+
+                  <th>Weight (Gram)</th>
+                  <th>C-Bills</th>
+                  <th>Page</th>
+                  <th>Notes</th>
+                  <th> </th>
+                </tr>
+              </StyledTableHead>
+              <StyledTableBody>
+                {inventory.map((item, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="checkbox"
+                        checked={item.active}
+                        onChange={() => handleInventoryCheckboxChange(index, "active")}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.equipment}
+                        onChange={(e) =>
+                          handleInventoryInputChange(index, "equipment", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={item.qty}
+                        onChange={(e) => handleInventoryInputChange(index, "qty", e.target.value)}
+                      />
+                    </td>
+
+                    <td>
+                      <input
+                        type="number"
+                        value={item.weight}
+                        onChange={(e) =>
+                          handleInventoryInputChange(index, "weight", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={item.cBills}
+                        onChange={(e) =>
+                          handleInventoryInputChange(index, "cBills", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.page}
+                        onChange={(e) => handleInventoryInputChange(index, "page", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={item.notes}
+                        onChange={(e) => handleInventoryInputChange(index, "notes", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <button onClick={() => handleDeleteInventoryItem(index)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </StyledTableBody>
+            </StyledTable>
+            <button onClick={handleAddInventoryItem}>Add Item</button>
+          </StyledSectionComponent>
+
+          <StyledSectionComponent>
+            <h2>VEHICLE DATA</h2>
+            <StyledTable>
+              <StyledTableHead>
+                <tr>
+                  <th>Model/Name</th>
+                  <th>Type</th>
+                  <th>Mass</th>
+                  <th>Traits</th>
+                  <th>Notes</th>
+                  <th> </th>
+                </tr>
+              </StyledTableHead>
+              <StyledTableBody>
+                {vehicles.map((vehicle, index) => (
+                  <tr key={index}>
+                    <td>
+                      <input
+                        type="text"
+                        value={vehicle.modelName}
+                        onChange={(e) =>
+                          handleVehicleInputChange(index, "modelName", e.target.value)
+                        }
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={vehicle.type}
+                        onChange={(e) => handleVehicleInputChange(index, "type", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="number"
+                        value={vehicle.mass}
+                        onChange={(e) => handleVehicleInputChange(index, "mass", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={vehicle.traits}
+                        onChange={(e) => handleVehicleInputChange(index, "traits", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <input
+                        type="text"
+                        value={vehicle.notes}
+                        onChange={(e) => handleVehicleInputChange(index, "notes", e.target.value)}
+                      />
+                    </td>
+                    <td>
+                      <button onClick={() => handleDeleteVehicle(index)}>Delete</button>
+                    </td>
+                  </tr>
+                ))}
+              </StyledTableBody>
+            </StyledTable>
+            <button onClick={handleAddVehicle}>Add Vehicle</button>
+          </StyledSectionComponent>
+          <br />
+          <button onClick={handleSubmit}>Submit Character</button>
         </CharacterContainer>
       </CharacterWrapper>
       <br />

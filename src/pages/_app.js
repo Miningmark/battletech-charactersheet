@@ -39,6 +39,10 @@ export default function App({ Component, pageProps }) {
     setTheme((prevTheme) => (prevTheme === "light" ? "dark" : "light"));
   };
 
+  function addCharacter(character) {
+    setCharactere((prevCharactere) => [...prevCharactere, character]);
+  }
+
   return (
     <>
       <Head>
@@ -51,7 +55,7 @@ export default function App({ Component, pageProps }) {
         <GlobalStyles />
         <PageHeader toggleTheme={toggleTheme} theme={theme} />
         <main>
-          <Component {...pageProps} charactere={charactere} />
+          <Component {...pageProps} charactere={charactere} addCharacter={addCharacter} />
         </main>
       </ThemeProvider>
     </>

@@ -13,20 +13,20 @@ export const CharacterContainer = styled.div`
   flex-direction: column;
   align-items: center;
   gap: 20px;
-  width: 90%;
+  width: 98%;
   max-width: 1600px;
   box-sizing: border-box;
   padding: 0 10px;
 `;
 
 export const Columns2 = styled.div`
-  display: grid;
-  grid-template-columns: 1fr;
-  width: 100%;
+  display: flex;
+  flex-direction: column;
   gap: 20px;
+  width: 100%;
 
   @media (min-width: 1000px) {
-    grid-template-columns: 1fr 1fr; /* Two equal-width columns for screens wider than 1000px */
+    flex-direction: row;
   }
 `;
 
@@ -40,7 +40,7 @@ export const StyledTableHead = styled.thead`
     font-weight: bold;
     padding: 5px;
     z-index: 1;
-    width: 30px; /* Feste Breite der Spalten */
+    width: 20px; /* Feste Breite der Spalten */
     white-space: nowrap; /* Verhindert Zeilenumbrüche */
     overflow: hidden;
     text-overflow: ellipsis; /* Fügt "..." hinzu, wenn Text abgeschnitten wird */
@@ -50,7 +50,7 @@ export const StyledTableHead = styled.thead`
 export const StyledTableBody = styled.tbody`
   td {
     padding: 5px;
-    max-width: 30px; /* Maximale Breite der Zellen */
+    max-width: 100px; /* Maximale Breite der Zellen */
     white-space: nowrap; /* Verhindert Zeilenumbrüche */
     overflow: hidden;
     text-overflow: ellipsis; /* Fügt "..." hinzu, wenn Text abgeschnitten wird */

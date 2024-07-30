@@ -5,6 +5,7 @@ import { useState } from "react";
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
+  width: 200px;
 `;
 
 const DropdownButton = styled.button`
@@ -14,6 +15,7 @@ const DropdownButton = styled.button`
   border: none;
   cursor: pointer;
   font-size: 16px;
+  width: 100%;
 `;
 
 const DropdownContent = styled.div`
@@ -23,6 +25,15 @@ const DropdownContent = styled.div`
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
   z-index: 1;
+`;
+
+const DropdownSearch = styled.input`
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  box-sizing: border-box;
+  border-radius: 4px;
+  margin-bottom: 8px;
 `;
 
 const DropdownItem = styled.a`
@@ -39,6 +50,7 @@ const DropdownItem = styled.a`
 export default function Dropdown({ options, onChange }) {
   const [title, setTitle] = useState("select skill");
   const [isOpen, setIsOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -52,15 +64,37 @@ export default function Dropdown({ options, onChange }) {
     }
   }
 
+  function handleSearchChange(event) {
+    setSearchTerm(event.target.value);
+  }
+
+  const filteredOptions = options.filter((option) =>
+    option.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   return (
     <DropdownContainer>
       <DropdownButton onClick={toggleDropdown}>{title}</DropdownButton>
       <DropdownContent $isopen={isOpen && "isOpen"}>
-        {options.map((option, index) => (
-          <DropdownItem key={index} onClick={() => handleItemClick(option)}>
-            {option}
-          </DropdownItem>
-        ))}
+        {isOpen && (
+          <>
+            <DropdownSearch
+              type="text"
+              placeholder="Search..."
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            {filteredOptions.length > 0 ? (
+              filteredOptions.map((option, index) => (
+                <DropdownItem key={index} onClick={() => handleItemClick(option)}>
+                  {option}
+                </DropdownItem>
+              ))
+            ) : (
+              <DropdownItem>No options found</DropdownItem>
+            )}
+          </>
+        )}
       </DropdownContent>
     </DropdownContainer>
   );
