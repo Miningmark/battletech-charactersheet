@@ -49,6 +49,10 @@ export default function App({ Component, pageProps }) {
     );
   }
 
+  function handleDelete(id) {
+    setCharactere((prevCharactere) => prevCharactere.filter((char) => char.id !== id));
+  }
+
   return (
     <>
       <Head>
@@ -66,6 +70,7 @@ export default function App({ Component, pageProps }) {
             charactere={charactere}
             addCharacter={addCharacter}
             updateCharacter={updateCharacter}
+            handleDelete={handleDelete}
           />
         </main>
       </ThemeProvider>
