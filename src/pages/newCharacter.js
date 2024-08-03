@@ -12,10 +12,14 @@ import {
   StyledTable,
   StyledTableHead,
   StyledTableBody,
+  StyledXSmallInput,
+  StyledSmallInput,
+  StyledNormalInput,
 } from "@/components/StyledComponents";
 
 import { skillList } from "@/lib/skillList";
 import { calculateLevel, calculateScore } from "@/lib/calculateValues";
+import DeleteButton from "@/components/menu/elements/DeleteButton";
 
 export default function NewCharacter({ addCharacter }) {
   const router = useRouter();
@@ -53,8 +57,21 @@ export default function NewCharacter({ addCharacter }) {
     climb: "",
     crawl: "",
     swim: "",
-    personalArmor: [{ armor: "", location: "", armorType: "", bar: "" }],
-    weapons: [{ name: "", skill: "", apbd: "", range: "", ammo: "", notes: "" }],
+    personalArmors: [{ name: "", location: "", type: "", m: "", b: "", e: "", x: "" }],
+    personalWeapons: [
+      {
+        name: "",
+        skill: "",
+        ap: "",
+        bd: "",
+        range1: "",
+        range2: "",
+        range3: "",
+        range4: "",
+        ammo: "",
+        notes: "",
+      },
+    ],
   });
   const [traits, setTraits] = useState([]);
   const [skills, setSkills] = useState([]);
@@ -110,7 +127,7 @@ export default function NewCharacter({ addCharacter }) {
     }));
   }
 
-  const handleChangeAttributes = (e) => {
+  function handleChangeAttributes(e) {
     const { name, value } = e.target;
     const attribute = name.replace("XP", "").toLowerCase();
 
@@ -121,7 +138,7 @@ export default function NewCharacter({ addCharacter }) {
         score: calculateScore(Number(value)),
       },
     }));
-  };
+  }
 
   function handleAddTrait() {
     setTraits((prevTraits) => [...prevTraits, { trait: "New Trait", tp: 0, pageRef: "", xp: 0 }]);
@@ -138,14 +155,14 @@ export default function NewCharacter({ addCharacter }) {
     setTraits(updatedTraits);
   }
 
-  const handleDropdownChange = (skillName) => {
+  function handleDropdownChange(skillName) {
     const skill = skillList.find((s) => s.skill === skillName);
     if (skill) {
       setSelectedSkill(skill);
     }
-  };
+  }
 
-  const handleAddSkill = () => {
+  function handleAddSkill() {
     if (selectedSkill) {
       const newSkillName = subskill ? `${selectedSkill.skill} / ${subskill}` : selectedSkill.skill;
       const newSkill = {
@@ -158,21 +175,21 @@ export default function NewCharacter({ addCharacter }) {
       setSkills([...skills, newSkill]);
       setSubskill(""); // Clear the subskill input
     }
-  };
+  }
 
-  const handleXPChange = (index, value) => {
+  function handleXPChange(index, value) {
     const updatedSkills = [...skills];
     updatedSkills[index].xp = value;
     updatedSkills[index].level = calculateLevel(value, updatedSkills[index].tnc);
     setSkills(updatedSkills);
-  };
+  }
 
-  const handleDeleteSkill = (index) => {
+  function handleDeleteSkill(index) {
     const updatedSkills = skills.filter((_, i) => i !== index);
     setSkills(updatedSkills);
-  };
+  }
 
-  const updateDamage = (type, amount) => {
+  function updateDamage(type, amount) {
     setCombatData((prevData) => {
       const currentValue = prevData[type];
       const maxValue = prevData[`${type}Max`];
@@ -184,24 +201,24 @@ export default function NewCharacter({ addCharacter }) {
         [type]: newValue,
       };
     });
-  };
+  }
 
-  const handleAddLiveEvent = () => {
+  function handleAddLiveEvent() {
     setBiography([...biography, { lifeEvent: "", age: "", notes: "" }]);
-  };
+  }
 
-  const handleDeleteLiveEvent = (index) => {
+  function handleDeleteLiveEvent(index) {
     setBiography(biography.filter((_, i) => i !== index));
-  };
+  }
 
-  const handleInputChangeLiveEvent = (index, field, value) => {
+  function handleInputChangeLiveEvent(index, field, value) {
     const updatedBiography = biography.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
     setBiography(updatedBiography);
-  };
+  }
 
-  const handleAddInventoryItem = () => {
+  function handleAddInventoryItem() {
     const newItem = {
       equipment: "New Item",
       qty: 0,
@@ -212,27 +229,27 @@ export default function NewCharacter({ addCharacter }) {
       notes: "",
     };
     setInventory([...inventory, newItem]);
-  };
+  }
 
-  const handleDeleteInventoryItem = (index) => {
+  function handleDeleteInventoryItem(index) {
     setInventory(inventory.filter((_, i) => i !== index));
-  };
+  }
 
-  const handleInventoryInputChange = (index, field, value) => {
+  function handleInventoryInputChange(index, field, value) {
     const updatedInventory = inventory.map((item, i) =>
       i === index ? { ...item, [field]: value } : item
     );
     setInventory(updatedInventory);
-  };
+  }
 
-  const handleInventoryCheckboxChange = (index, field) => {
+  function handleInventoryCheckboxChange(index, field) {
     const updatedInventory = inventory.map((item, i) =>
       i === index ? { ...item, [field]: !item[field] } : item
     );
     setInventory(updatedInventory);
-  };
+  }
 
-  const handleAddVehicle = () => {
+  function handleAddVehicle() {
     const newVehicle = {
       modelName: "New Vehicle",
       type: "",
@@ -241,18 +258,75 @@ export default function NewCharacter({ addCharacter }) {
       notes: "",
     };
     setVehicles([...vehicles, newVehicle]);
-  };
+  }
 
-  const handleDeleteVehicle = (index) => {
+  function handleDeleteVehicle(index) {
     setVehicles(vehicles.filter((_, i) => i !== index));
-  };
+  }
 
-  const handleVehicleInputChange = (index, field, value) => {
+  function handleVehicleInputChange(index, field, value) {
     const updatedVehicles = vehicles.map((vehicle, i) =>
       i === index ? { ...vehicle, [field]: value } : vehicle
     );
     setVehicles(updatedVehicles);
-  };
+  }
+
+  function handleInputChangeCbills(value) {
+    setCbills(value);
+  }
+
+  function handleInputChangeArmor(index, field, value) {
+    const updatedArmor = [...combatData.personalArmors];
+    updatedArmor[index] = { ...updatedArmor[index], [field]: value };
+    setCombatData({ ...combatData, personalArmors: updatedArmor });
+  }
+
+  function addNewArmor() {
+    setCombatData({
+      ...combatData,
+      personalArmors: [
+        ...combatData.personalArmors,
+        { name: "", location: "", type: "", m: "", b: "", e: "", x: "" },
+      ],
+    });
+  }
+
+  function deleteArmor(index) {
+    const updatedArmors = combatData.personalArmors.filter((_, i) => i !== index);
+    setCombatData({ ...combatData, personalArmors: updatedArmors });
+  }
+
+  function handleInputChangeWeapon(index, field, value) {
+    const updatedWeapon = [...combatData.personalWeapons];
+    updatedWeapon[index] = { ...updatedWeapon[index], [field]: value };
+    setCombatData({ ...combatData, personalWeapons: updatedWeapon });
+  }
+
+  function addNewWeapon() {
+    setCombatData({
+      ...combatData,
+      personalWeapons: [
+        ...combatData.personalWeapons,
+        {
+          name: "",
+          skill: "",
+          ap: "",
+          bd: "",
+          range1: "",
+          range2: "",
+          range3: "",
+          range4: "",
+          ammo: "",
+          notes: "",
+        },
+      ],
+    });
+  }
+
+  function deleteWeapon(index) {
+    const updatedWeapon = combatData.personalWeapons.filter((_, i) => i !== index);
+    setCombatData({ ...combatData, personalWeapons: updatedWeapon });
+  }
 
   function generateId() {
     const timestamp = Date.now();
@@ -384,7 +458,7 @@ export default function NewCharacter({ addCharacter }) {
                           <td>{score}</td>
                           <td>-</td>
                           <td>
-                            <input
+                            <StyledSmallInput
                               type="number"
                               min="0"
                               name={`${key}XP`}
@@ -433,83 +507,160 @@ export default function NewCharacter({ addCharacter }) {
                 </div>
               </div>
               <br />
-              <p>Personal Armor noch nicht fertig</p>
+              <p>Personal Armor</p>
               <StyledTable>
                 <StyledTableHead>
                   <tr>
-                    <th>Perso. Armor</th>
+                    <th>Name</th>
                     <th>Location</th>
-                    <th>Armor Type</th>
+                    <th>Type</th>
                     <th>BAR (M/B/E/X)</th>
+                    <th></th>
                   </tr>
                 </StyledTableHead>
                 <StyledTableBody>
-                  <tr>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
+                  {combatData.personalArmors.map((armor, index) => (
+                    <tr key={index}>
+                      <td>
+                        <StyledNormalInput
+                          type="text"
+                          value={armor.name}
+                          onChange={(e) => handleInputChangeArmor(index, "name", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledSmallInput
+                          type="text"
+                          value={armor.location}
+                          onChange={(e) =>
+                            handleInputChangeArmor(index, "location", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        <StyledNormalInput
+                          type="text"
+                          value={armor.type}
+                          onChange={(e) => handleInputChangeArmor(index, "type", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledXSmallInput
+                          type="text"
+                          value={armor.m}
+                          onChange={(e) => handleInputChangeArmor(index, "m", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={armor.b}
+                          onChange={(e) => handleInputChangeArmor(index, "b", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={armor.e}
+                          onChange={(e) => handleInputChangeArmor(index, "e", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={armor.x}
+                          onChange={(e) => handleInputChangeArmor(index, "x", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <DeleteButton onClick={() => deleteArmor(index)} />
+                      </td>
+                    </tr>
+                  ))}
                 </StyledTableBody>
               </StyledTable>
+              <button onClick={addNewArmor}>Add New Armor</button>
               <br />
               <p>Weapons</p>
               <StyledTable>
                 <StyledTableHead>
                   <tr>
-                    <th></th>
+                    <th>Name</th>
                     <th>Skill</th>
                     <th>AP/BD</th>
                     <th>Range</th>
                     <th>Ammo</th>
                     <th>Notes</th>
+                    <th></th>
                   </tr>
                 </StyledTableHead>
                 <StyledTableBody>
-                  <tr>
-                    <td>Martial Arts</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>Melee</td>
-                    <td>N/A</td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
-                  <tr>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                    <td>
-                      <input type="text" />
-                    </td>
-                  </tr>
+                  {combatData.personalWeapons.map((weapon, index) => (
+                    <tr key={index}>
+                      <td>
+                        <StyledNormalInput
+                          type="text"
+                          value={weapon.name}
+                          onChange={(e) => handleInputChangeWeapon(index, "name", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.skill}
+                          onChange={(e) => handleInputChangeWeapon(index, "skill", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.ap}
+                          onChange={(e) => handleInputChangeWeapon(index, "ap", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.bd}
+                          onChange={(e) => handleInputChangeWeapon(index, "bd", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.range1}
+                          onChange={(e) => handleInputChangeWeapon(index, "range1", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.range2}
+                          onChange={(e) => handleInputChangeWeapon(index, "range2", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.range3}
+                          onChange={(e) => handleInputChangeWeapon(index, "range3", e.target.value)}
+                        />
+                        <StyledXSmallInput
+                          type="text"
+                          value={weapon.range4}
+                          onChange={(e) => handleInputChangeWeapon(index, "range4", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledXSmallInput
+                          type="number"
+                          value={weapon.ammo}
+                          onChange={(e) => handleInputChangeWeapon(index, "ammo", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <StyledNormalInput
+                          type="text"
+                          value={weapon.notes}
+                          onChange={(e) => handleInputChangeWeapon(index, "notes", e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <DeleteButton onClick={() => deleteWeapon(index)} />
+                      </td>
+                    </tr>
+                  ))}
                 </StyledTableBody>
               </StyledTable>
+              <button onClick={addNewWeapon}>Add New Weapon</button>
             </StyledSectionComponent>
           </Columns2>
 
@@ -537,14 +688,14 @@ export default function NewCharacter({ addCharacter }) {
                     </td>
                     <td>{calculateScore(trait.xp)}</td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="text"
                         value={trait.pageRef}
                         onChange={(e) => handleChangeTrait(index, "pageRef", e.target.value)}
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="number"
                         value={trait.xp}
                         onChange={(e) => handleChangeTrait(index, "xp", Number(e.target.value))}
@@ -581,7 +732,7 @@ export default function NewCharacter({ addCharacter }) {
                     <td>{skill.link}</td>
                     <td>{skill.tnc}</td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="number"
                         value={skill.xp}
                         onChange={(e) => handleXPChange(index, parseInt(e.target.value, 10))}
@@ -634,7 +785,7 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="number"
                         value={item.age}
                         onChange={(e) => handleInputChangeLiveEvent(index, "age", e.target.value)}
@@ -659,7 +810,14 @@ export default function NewCharacter({ addCharacter }) {
 
           <StyledSectionComponent>
             <h2>INVENTORY</h2>
-            <p>C-Bills: {cbills}</p>
+            <p>
+              C-Bills:{" "}
+              <input
+                type="number"
+                value={cbills}
+                onChange={(e) => handleInputChangeCbills(e.target.value)}
+              />
+            </p>
             <StyledTable>
               <StyledTableHead>
                 <tr>
@@ -694,7 +852,7 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="number"
                         value={item.qty}
                         onChange={(e) => handleInventoryInputChange(index, "qty", e.target.value)}
@@ -702,7 +860,7 @@ export default function NewCharacter({ addCharacter }) {
                     </td>
 
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="number"
                         value={item.weight}
                         onChange={(e) =>
@@ -711,7 +869,7 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="number"
                         value={item.cBills}
                         onChange={(e) =>
@@ -720,7 +878,7 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledSmallInput
                         type="text"
                         value={item.page}
                         onChange={(e) => handleInventoryInputChange(index, "page", e.target.value)}
@@ -776,8 +934,8 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
-                        type="number"
+                      <StyledSmallInput
+                        type="text"
                         value={vehicle.mass}
                         onChange={(e) => handleVehicleInputChange(index, "mass", e.target.value)}
                       />

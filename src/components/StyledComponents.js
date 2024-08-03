@@ -38,22 +38,73 @@ export const StyledTable = styled.table`
 export const StyledTableHead = styled.thead`
   th {
     font-weight: bold;
-    padding: 5px;
+    padding: 0;
     z-index: 1;
     width: 20px; /* Feste Breite der Spalten */
     white-space: nowrap; /* Verhindert Zeilenumbrüche */
     overflow: hidden;
     text-overflow: ellipsis; /* Fügt "..." hinzu, wenn Text abgeschnitten wird */
+
+    @media (min-width: 700px) {
+      margin: 5px;
+    }
+
+    @media (min-width: 500px) {
+      margin: 2px;
+    }
   }
 `;
 
 export const StyledTableBody = styled.tbody`
   td {
-    padding: 5px;
+    padding: 0;
     max-width: 100px; /* Maximale Breite der Zellen */
     white-space: nowrap; /* Verhindert Zeilenumbrüche */
     overflow: hidden;
     text-overflow: ellipsis; /* Fügt "..." hinzu, wenn Text abgeschnitten wird */
     text-align: center;
+
+    @media (min-width: 700px) {
+      margin: 5px;
+    }
+
+    @media (min-width: 500px) {
+      margin: 2px;
+    }
+  }
+`;
+const StyledInput = styled.input`
+  margin: 0;
+
+  @media (min-width: 700px) {
+    margin: 5px;
+  }
+
+  @media (min-width: 500px) {
+    margin: 2px;
+  }
+`;
+
+export const StyledXSmallInput = styled(StyledInput)`
+  width: 14px;
+
+  @media (min-width: 600px) {
+    width: 20px;
+  }
+`;
+
+export const StyledSmallInput = styled(StyledInput)`
+  width: 38px;
+
+  @media (min-width: 600px) {
+    width: 60px;
+  }
+`;
+
+export const StyledNormalInput = styled(StyledInput)`
+  width: 55px;
+
+  @media (min-width: 600px) {
+    width: 100px;
   }
 `;

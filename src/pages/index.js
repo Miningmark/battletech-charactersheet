@@ -11,6 +11,7 @@ import {
   StyledTableHead,
   StyledTableBody,
 } from "@/components/StyledComponents";
+import Link from "next/link";
 
 export default function Home({ charactere }) {
   const router = useRouter();
@@ -25,7 +26,11 @@ export default function Home({ charactere }) {
             {!charactere?.length ? (
               <p>No characters</p>
             ) : (
-              charactere.map((char) => <p key={char.id}>{char.personalData.name}</p>)
+              charactere.map((char) => (
+                <Link href={`/show/${char.id}`} key={char.id}>
+                  {char.personalData.name}
+                </Link>
+              ))
             )}
           </div>
         </CharacterContainer>

@@ -58,14 +58,14 @@ export const GlobalStyles = createGlobalStyle`
         width: 100%;
     }
 
-    p,td,th{
+    p,td,th,span,link,input{
         font-family: Helvetica, sans-serif;
         font-weight: 400;
         font-size: 1.125rem;
         margin: 5px;
 
         @media (max-width: 800px) {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
         }
     }
 

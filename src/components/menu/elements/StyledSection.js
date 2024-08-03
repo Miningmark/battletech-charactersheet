@@ -4,10 +4,14 @@ const StyledSection = styled.section`
   border: 2px solid ${({ theme }) => theme.text};
   display: flex;
   flex-direction: column;
-  padding: 1rem;
+  padding: 1.1rem 0.5rem;
   width: calc(100% - 2rem);
 
   position: relative;
+
+  @media (min-width: 500px) {
+    padding: 1.1rem;
+  }
 `;
 
 const Corner = styled.div`
