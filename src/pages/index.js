@@ -32,6 +32,19 @@ export default function Home({ charactere, handleDelete, addCharacter }) {
     }
   }
 
+  function downloadFile(characterID) {
+    const data = charactere.find((char) => char.id === characterID);
+    const blob = new Blob([JSON.stringify(data)], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `Battletech Character ${data.personalData.name}.txt`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  }
+
   return (
     <>
       <CharacterWrapper>
@@ -44,7 +57,13 @@ export default function Home({ charactere, handleDelete, addCharacter }) {
               <p>No characters</p>
             ) : (
               charactere.map((char) => (
-                <CharacterChoise character={char} key={char.id} handleDelete={handleDelete} />
+                <CharacterChoise
+                  characterName={char.personalData.name}
+                  characterId={char.id}
+                  key={char.id}
+                  handleDelete={handleDelete}
+                  downloadFile={downloadFile}
+                />
               ))
             )}
           </div>

@@ -17,9 +17,6 @@ import {
   StyledNormalInput,
   StyledLargeInput,
 } from "@/components/StyledComponents";
-
-import { skillList } from "@/lib/skillList";
-import { calculateLevel, calculateScore } from "@/lib/calculateValues";
 import DeleteButton from "@/components/menu/elements/DeleteButton";
 
 export default function Show({ charactere, updateCharacter }) {
@@ -33,8 +30,6 @@ export default function Show({ charactere, updateCharacter }) {
     setCharacter(charactere.find((char) => char.id == slug));
     console.log(slug);
   }, [slug, charactere]);
-
-  console.log(character);
 
   function handleAddCharacterXP() {
     const xpToAdd = Number(addXP) || 0;

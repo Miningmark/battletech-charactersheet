@@ -19,15 +19,20 @@ function downloadFile(data) {
   URL.revokeObjectURL(url);
 }
 
-export default function CharacterChoise({ character, handleDelete }) {
+export default function CharacterChoise({
+  characterName,
+  characterId,
+  handleDelete,
+  downloadFile,
+}) {
   const router = useRouter();
   return (
     <>
       <CharacterWrapper>
-        <p>{character.personalData.name}</p>
-        <button onClick={() => router.push(`/show/${character.id}`)}>Show</button>
-        <button onClick={() => downloadFile(character)}>Download</button>
-        <button onClick={() => handleDelete(character.id)}>Delete</button>
+        <p>{characterName}</p>
+        <button onClick={() => router.push(`/show/${characterId}`)}>Show</button>
+        <button onClick={() => downloadFile(characterId)}>Download</button>
+        <button onClick={() => handleDelete(characterId)}>Delete</button>
       </CharacterWrapper>
     </>
   );
