@@ -58,7 +58,7 @@ export const GlobalStyles = createGlobalStyle`
         width: 100%;
     }
 
-    p,td,th,span,link,input{
+    p,td,th,span,link,input,button{
         font-family: Helvetica, sans-serif;
         font-weight: 400;
         font-size: 1.125rem;

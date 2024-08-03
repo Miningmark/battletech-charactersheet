@@ -5,13 +5,19 @@ import { useState } from "react";
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
-  width: 200px;
+  width: 150px;
+  height: 30px;
+
+  @media (min-width: 500px) {
+    width: 200px;
+  }
 `;
 
 const DropdownButton = styled.button`
   background-color: #3498db;
   color: white;
-  padding: 10px;
+  padding: 5px;
+  margin: 0;
   border: none;
   cursor: pointer;
   font-size: 16px;

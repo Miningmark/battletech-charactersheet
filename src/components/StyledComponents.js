@@ -108,3 +108,11 @@ export const StyledNormalInput = styled(StyledInput)`
     width: 100px;
   }
 `;
+
+export const StyledLargeInput = styled(StyledInput)`
+  width: 100px;
+
+  @media (min-width: 600px) {
+    width: 160px;
+  }
+`;

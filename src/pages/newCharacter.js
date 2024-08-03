@@ -15,6 +15,7 @@ import {
   StyledXSmallInput,
   StyledSmallInput,
   StyledNormalInput,
+  StyledLargeInput,
 } from "@/components/StyledComponents";
 
 import { skillList } from "@/lib/skillList";
@@ -32,6 +33,8 @@ export default function NewCharacter({ addCharacter }) {
     player: "",
     affiliation: "",
     extra: "",
+    xpUse: 0,
+    xpMax: 0,
   });
   const [attributes, setAttributes] = useState({
     str: { xp: 0, score: 0 },
@@ -364,7 +367,7 @@ export default function NewCharacter({ addCharacter }) {
                   <h2>PERSONAL DATA</h2>
                   <p>
                     Name:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="name"
                       value={personalData.name}
@@ -373,7 +376,7 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Height:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="height"
                       value={personalData.height}
@@ -382,7 +385,7 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Hair:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="hair"
                       value={personalData.hair}
@@ -391,7 +394,7 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Weight:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="weight"
                       value={personalData.weight}
@@ -400,7 +403,7 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Eyes:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="eyes"
                       value={personalData.eyes}
@@ -409,7 +412,7 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Player:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="player"
                       value={personalData.player}
@@ -418,7 +421,7 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Affiliation:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="affiliation"
                       value={personalData.affiliation}
@@ -427,10 +430,26 @@ export default function NewCharacter({ addCharacter }) {
                   </p>
                   <p>
                     Extra:{" "}
-                    <input
+                    <StyledLargeInput
                       type="text"
                       name="extra"
                       value={personalData.extra}
+                      onChange={handleChangePersonalData}
+                    />
+                  </p>
+                  <p>
+                    XP:{" "}
+                    <StyledSmallInput
+                      type="number"
+                      name="xpUse"
+                      value={personalData.xpUse}
+                      onChange={handleChangePersonalData}
+                    />
+                    {" /"}
+                    <StyledSmallInput
+                      type="number"
+                      name="xpMax"
+                      value={personalData.xpMax}
                       onChange={handleChangePersonalData}
                     />
                   </p>
@@ -702,7 +721,9 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <button onClick={() => handleDeleteTrait(index)}>Delete Trait</button>
+                      <DeleteButton onClick={() => handleDeleteTrait(index)}>
+                        Delete Trait
+                      </DeleteButton>
                     </td>
                   </tr>
                 ))}
@@ -739,19 +760,22 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <button onClick={() => handleDeleteSkill(index)}>Delete Skill</button>
+                      <DeleteButton onClick={() => handleDeleteSkill(index)}>
+                        Delete Skill
+                      </DeleteButton>
                     </td>
                   </tr>
                 ))}
               </StyledTableBody>
             </StyledTable>
-            <div>
+            <br />
+            <div style={{ height: "50px", display: "flex", gap: "5px", alignItems: "center" }}>
               <Dropdown
                 options={skillList.map((skill) => skill.skill)}
                 onChange={handleDropdownChange}
               />
               {" / "}
-              <input
+              <StyledNormalInput
                 type="text"
                 placeholder="Subskill"
                 value={subskill}
@@ -769,14 +793,14 @@ export default function NewCharacter({ addCharacter }) {
                   <th>Life Event</th>
                   <th>Age</th>
                   <th>Other Notes</th>
-                  <th> </th>
+                  <th></th>
                 </tr>
               </StyledTableHead>
               <StyledTableBody>
                 {biography.map((item, index) => (
                   <tr key={index}>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={item.lifeEvent}
                         onChange={(e) =>
@@ -792,19 +816,22 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={item.notes}
                         onChange={(e) => handleInputChangeLiveEvent(index, "notes", e.target.value)}
                       />
                     </td>
                     <td>
-                      <button onClick={() => handleDeleteLiveEvent(index)}>Delete</button>
+                      <DeleteButton onClick={() => handleDeleteLiveEvent(index)}>
+                        Delete
+                      </DeleteButton>
                     </td>
                   </tr>
                 ))}
               </StyledTableBody>
             </StyledTable>
+            <br />
             <button onClick={handleAddLiveEvent}>Add Life Event</button>
           </StyledSectionComponent>
 
@@ -812,7 +839,7 @@ export default function NewCharacter({ addCharacter }) {
             <h2>INVENTORY</h2>
             <p>
               C-Bills:{" "}
-              <input
+              <StyledNormalInput
                 type="number"
                 value={cbills}
                 onChange={(e) => handleInputChangeCbills(e.target.value)}
@@ -824,12 +851,11 @@ export default function NewCharacter({ addCharacter }) {
                   <th>Active</th>
                   <th>Equipment</th>
                   <th>Qty</th>
-
                   <th>Weight (Gram)</th>
                   <th>C-Bills</th>
                   <th>Page</th>
                   <th>Notes</th>
-                  <th> </th>
+                  <th></th>
                 </tr>
               </StyledTableHead>
               <StyledTableBody>
@@ -843,7 +869,7 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={item.equipment}
                         onChange={(e) =>
@@ -885,19 +911,22 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={item.notes}
                         onChange={(e) => handleInventoryInputChange(index, "notes", e.target.value)}
                       />
                     </td>
                     <td>
-                      <button onClick={() => handleDeleteInventoryItem(index)}>Delete</button>
+                      <DeleteButton onClick={() => handleDeleteInventoryItem(index)}>
+                        Delete
+                      </DeleteButton>
                     </td>
                   </tr>
                 ))}
               </StyledTableBody>
             </StyledTable>
+            <br />
             <button onClick={handleAddInventoryItem}>Add Item</button>
           </StyledSectionComponent>
 
@@ -918,7 +947,7 @@ export default function NewCharacter({ addCharacter }) {
                 {vehicles.map((vehicle, index) => (
                   <tr key={index}>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={vehicle.modelName}
                         onChange={(e) =>
@@ -927,7 +956,7 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledNormalInput
                         type="text"
                         value={vehicle.type}
                         onChange={(e) => handleVehicleInputChange(index, "type", e.target.value)}
@@ -941,26 +970,27 @@ export default function NewCharacter({ addCharacter }) {
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={vehicle.traits}
                         onChange={(e) => handleVehicleInputChange(index, "traits", e.target.value)}
                       />
                     </td>
                     <td>
-                      <input
+                      <StyledLargeInput
                         type="text"
                         value={vehicle.notes}
                         onChange={(e) => handleVehicleInputChange(index, "notes", e.target.value)}
                       />
                     </td>
                     <td>
-                      <button onClick={() => handleDeleteVehicle(index)}>Delete</button>
+                      <DeleteButton onClick={() => handleDeleteVehicle(index)}>Delete</DeleteButton>
                     </td>
                   </tr>
                 ))}
               </StyledTableBody>
             </StyledTable>
+            <br />
             <button onClick={handleAddVehicle}>Add Vehicle</button>
           </StyledSectionComponent>
           <br />
