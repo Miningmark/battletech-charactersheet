@@ -144,7 +144,7 @@ export default function NewCharacter({ addCharacter }) {
   }
 
   function handleAddTrait() {
-    setTraits((prevTraits) => [...prevTraits, { trait: "New Trait", tp: 0, pageRef: "", xp: 0 }]);
+    setTraits((prevTraits) => [...prevTraits, { name: "New Trait", tp: 0, pageRef: "", xp: 0 }]);
   }
 
   function handleDeleteTrait(index) {
@@ -152,9 +152,12 @@ export default function NewCharacter({ addCharacter }) {
   }
 
   function handleChangeTrait(index, field, value) {
-    const updatedTraits = traits.map((trait, i) =>
+    let updatedTraits = traits.map((trait, i) =>
       i === index ? { ...trait, [field]: value } : trait
     );
+    if (field === "xp") {
+      updatedTraits[index].tp = calculateScore(value);
+    }
     setTraits(updatedTraits);
   }
 
@@ -701,11 +704,11 @@ export default function NewCharacter({ addCharacter }) {
                     <td>
                       <input
                         type="text"
-                        value={trait.trait}
-                        onChange={(e) => handleChangeTrait(index, "trait", e.target.value)}
+                        value={trait.name}
+                        onChange={(e) => handleChangeTrait(index, "name", e.target.value)}
                       />
                     </td>
-                    <td>{calculateScore(trait.xp)}</td>
+                    <td>{trait.tp}</td>
                     <td>
                       <StyledSmallInput
                         type="text"

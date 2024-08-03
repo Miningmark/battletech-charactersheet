@@ -80,6 +80,7 @@ export const GlobalStyles = createGlobalStyle`
     }
 
     h2{
+        text-align: center;
         color: ${({ theme }) => theme.primaryColor};
         font-family: Tahoma;
         font-weight: 600;

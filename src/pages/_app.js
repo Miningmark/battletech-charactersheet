@@ -43,6 +43,12 @@ export default function App({ Component, pageProps }) {
     setCharactere((prevCharactere) => [...prevCharactere, character]);
   }
 
+  function updateCharacter(updatedCharacter) {
+    setCharactere((prevCharactere) =>
+      prevCharactere.map((char) => (char.id === updatedCharacter.id ? updatedCharacter : char))
+    );
+  }
+
   return (
     <>
       <Head>
@@ -55,7 +61,12 @@ export default function App({ Component, pageProps }) {
         <GlobalStyles />
         <PageHeader toggleTheme={toggleTheme} theme={theme} />
         <main>
-          <Component {...pageProps} charactere={charactere} addCharacter={addCharacter} />
+          <Component
+            {...pageProps}
+            charactere={charactere}
+            addCharacter={addCharacter}
+            updateCharacter={updateCharacter}
+          />
         </main>
       </ThemeProvider>
     </>
