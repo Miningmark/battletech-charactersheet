@@ -4,4 +4,5 @@ export const weaponSkillList = [
   { skill: "Melee Weapons" },
   { skill: "Support Weapons" },
   { skill: "Archery" },
+  { skill: "Artillery" },
 ];
