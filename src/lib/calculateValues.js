@@ -20,3 +20,13 @@ export function calculateLevel(xp) {
 
   return level;
 }
+
+export function calculateLink(xp) {
+  if (xp >= 1000) return 2;
+  if (xp >= 700) return 1;
+  if (xp >= 400) return 0;
+  if (xp >= 200) return -1;
+  if (xp >= 100) return -2;
+  if (xp >= 0) return -4;
+  return null;
+}

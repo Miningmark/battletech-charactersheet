@@ -53,8 +53,8 @@ const DropdownItem = styled.a`
   }
 `;
 
-export default function Dropdown({ options, onChange }) {
-  const [title, setTitle] = useState("select skill");
+export default function Dropdown({ options, onChange, defaultOption }) {
+  const [title, setTitle] = useState(defaultOption ? defaultOption : "Select an option");
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
 

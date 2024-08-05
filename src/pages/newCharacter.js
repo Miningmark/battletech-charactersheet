@@ -19,9 +19,10 @@ import {
 } from "@/components/StyledComponents";
 
 import { skillList } from "@/lib/skillList";
-import { calculateLevel, calculateScore } from "@/lib/calculateValues";
+import { calculateLevel, calculateScore, calculateLink } from "@/lib/calculateValues";
 import DeleteButton from "@/components/menu/elements/DeleteButton";
 import { weaponSkillList } from "@/lib/weaponSkillList";
+import { traitList } from "@/lib/traitList";
 
 export default function NewCharacter({ addCharacter }) {
   const router = useRouter();
@@ -78,6 +79,7 @@ export default function NewCharacter({ addCharacter }) {
     ],
   });
   const [traits, setTraits] = useState([]);
+  const [selectedTrait, setSelectedTrait] = useState(null);
   const [skills, setSkills] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [subskill, setSubskill] = useState("");
@@ -88,9 +90,9 @@ export default function NewCharacter({ addCharacter }) {
 
   useEffect(() => {
     // Ensure skills are properly set up
-    const runningSkill = skills.find((skill) => skill.name === "running")?.level || 0;
-    const climbingSkill = skills.find((skill) => skill.name === "climbing")?.level || 0;
-    const swimmingSkill = skills.find((skill) => skill.name === "swimming")?.level || 0;
+    const runningSkill = skills.find((skill) => skill.name === "Running")?.level || 0;
+    const climbingSkill = skills.find((skill) => skill.name === "Climbing")?.level || 0;
+    const swimmingSkill = skills.find((skill) => skill.name === "Swimming")?.level || 0;
 
     // Calculate values
     const { str, bod, rfl, wil } = attributes;
@@ -140,12 +142,28 @@ export default function NewCharacter({ addCharacter }) {
       [attribute]: {
         xp: Number(value),
         score: calculateScore(Number(value)),
+        link: calculateLink(Number(value)),
       },
     }));
   }
 
+  function handleDropdownTrait(traitName) {
+    const trait = traitList.find((t) => t.trait === traitName);
+    if (trait) {
+      setSelectedTrait(trait);
+    }
+  }
+
   function handleAddTrait() {
-    setTraits((prevTraits) => [...prevTraits, { name: "New Trait", tp: 0, pageRef: "", xp: 0 }]);
+    if (selectedTrait) {
+      const newTrait = {
+        name: selectedTrait.trait,
+        xp: 0,
+        tp: 0,
+        page: selectedTrait.page,
+      };
+      setTraits((prevTraits) => [...prevTraits, newTrait]);
+    }
   }
 
   function handleDeleteTrait(index) {
@@ -162,7 +180,7 @@ export default function NewCharacter({ addCharacter }) {
     setTraits(updatedTraits);
   }
 
-  function handleDropdownChange(skillName) {
+  function handleDropdownSkill(skillName) {
     const skill = skillList.find((s) => s.skill === skillName);
     if (skill) {
       setSelectedSkill(skill);
@@ -176,8 +194,9 @@ export default function NewCharacter({ addCharacter }) {
         name: newSkillName,
         xp: 0,
         tnc: selectedSkill.tnc,
-        link: selectedSkill.link.join(", "),
+        link: selectedSkill.link,
         level: calculateLevel(0, selectedSkill.tnc),
+        page: selectedSkill.page,
       };
       setSkills([...skills, newSkill]);
       setSubskill("");
@@ -357,6 +376,14 @@ export default function NewCharacter({ addCharacter }) {
 
     addCharacter(character);
     router.push("/");
+  }
+
+  function calculateLinkMod(links) {
+    // Links ist jetzt ein Array von Attributnamen in Uppercase
+    return links.reduce((total, link) => {
+      const attribute = attributes[link];
+      return total + (attribute ? attribute.link : 0);
+    }, 0);
   }
 
   return (
@@ -698,7 +725,7 @@ export default function NewCharacter({ addCharacter }) {
                 <tr>
                   <th>Trait</th>
                   <th>TP</th>
-                  <th>Page Ref.</th>
+                  <th>Page</th>
                   <th>XP</th>
                   <th> </th>
                 </tr>
@@ -706,21 +733,9 @@ export default function NewCharacter({ addCharacter }) {
               <StyledTableBody>
                 {traits.map((trait, index) => (
                   <tr key={index}>
-                    <td>
-                      <input
-                        type="text"
-                        value={trait.name}
-                        onChange={(e) => handleChangeTrait(index, "name", e.target.value)}
-                      />
-                    </td>
+                    <td>{trait.name}</td>
                     <td>{trait.tp}</td>
-                    <td>
-                      <StyledSmallInput
-                        type="text"
-                        value={trait.pageRef}
-                        onChange={(e) => handleChangeTrait(index, "pageRef", e.target.value)}
-                      />
-                    </td>
+                    <td>{trait.page}</td>
                     <td>
                       <StyledSmallInput
                         type="number"
@@ -737,7 +752,15 @@ export default function NewCharacter({ addCharacter }) {
                 ))}
               </StyledTableBody>
             </StyledTable>
-            <button onClick={handleAddTrait}>Add Trait</button>
+            <br />
+            <div style={{ height: "50px", display: "flex", gap: "5px", alignItems: "center" }}>
+              <Dropdown
+                options={traitList.map((trait) => trait.trait)}
+                onChange={handleDropdownTrait}
+                defaultOption="Select a trait"
+              />
+              <button onClick={handleAddTrait}>Add Trait</button>
+            </div>
           </StyledSectionComponent>
 
           <StyledSectionComponent>
@@ -747,9 +770,11 @@ export default function NewCharacter({ addCharacter }) {
                 <tr>
                   <th>Skill</th>
                   <th>Lvl</th>
-                  <th>Links</th>
+                  <th>Link Attri.</th>
+                  <th>Link Mod</th>
                   <th>TN/C</th>
                   <th>XP</th>
+                  <th>Page</th>
                   <th> </th>
                 </tr>
               </StyledTableHead>
@@ -758,7 +783,8 @@ export default function NewCharacter({ addCharacter }) {
                   <tr key={index}>
                     <td>{skill.name}</td>
                     <td>{skill.level}</td>
-                    <td>{skill.link}</td>
+                    <td>{skill.link.join(", ")}</td>
+                    <td>{calculateLinkMod(skill.link)}</td>
                     <td>{skill.tnc}</td>
                     <td>
                       <StyledSmallInput
@@ -767,6 +793,7 @@ export default function NewCharacter({ addCharacter }) {
                         onChange={(e) => handleXPChange(index, parseInt(e.target.value, 10))}
                       />
                     </td>
+                    <td>{skill.page}</td>
                     <td>
                       <DeleteButton onClick={() => handleDeleteSkill(index)}>
                         Delete Skill
@@ -780,7 +807,8 @@ export default function NewCharacter({ addCharacter }) {
             <div style={{ height: "50px", display: "flex", gap: "5px", alignItems: "center" }}>
               <Dropdown
                 options={skillList.map((skill) => skill.skill)}
-                onChange={handleDropdownChange}
+                onChange={handleDropdownSkill}
+                defaultOption="Select a skill"
               />
               {" / "}
               <StyledNormalInput
