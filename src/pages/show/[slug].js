@@ -37,7 +37,7 @@ export default function Show({ charactere, updateCharacter }) {
       ...character,
       personalData: {
         ...character.personalData,
-        xpMax: (character.personalData.xpMax || 0) + xpToAdd,
+        xpMax: Number(character.personalData.xpMax || 0) + xpToAdd,
       },
     };
     setCharacter(updatedCharacter);
@@ -169,13 +169,13 @@ export default function Show({ charactere, updateCharacter }) {
                     </tr>
                   </StyledTableHead>
                   <StyledTableBody>
-                    {Object.entries(character.attributes).map(([key, { xp, score }]) => {
+                    {Object.entries(character.attributes).map(([key, { xp, score, link }]) => {
                       const attribute = key.toUpperCase();
                       return (
                         <tr key={key}>
                           <td>{attribute}</td>
                           <td>{score}</td>
-                          <td>-</td>
+                          <td>{link}</td>
                           <td>{xp}</td>
                         </tr>
                       );

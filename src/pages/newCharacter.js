@@ -21,6 +21,7 @@ import {
 import { skillList } from "@/lib/skillList";
 import { calculateLevel, calculateScore } from "@/lib/calculateValues";
 import DeleteButton from "@/components/menu/elements/DeleteButton";
+import { weaponSkillList } from "@/lib/weaponSkillList";
 
 export default function NewCharacter({ addCharacter }) {
   const router = useRouter();
@@ -37,42 +38,42 @@ export default function NewCharacter({ addCharacter }) {
     xpMax: 0,
   });
   const [attributes, setAttributes] = useState({
-    str: { xp: 0, score: 0 },
-    bod: { xp: 0, score: 0 },
-    rfl: { xp: 0, score: 0 },
-    dex: { xp: 0, score: 0 },
-    int: { xp: 0, score: 0 },
-    wil: { xp: 0, score: 0 },
-    cha: { xp: 0, score: 0 },
-    edg: { xp: 0, score: 0 },
+    str: { xp: 0, score: 0, link: 0 },
+    bod: { xp: 0, score: 0, link: 0 },
+    rfl: { xp: 0, score: 0, link: 0 },
+    dex: { xp: 0, score: 0, link: 0 },
+    int: { xp: 0, score: 0, link: 0 },
+    wil: { xp: 0, score: 0, link: 0 },
+    cha: { xp: 0, score: 0, link: 0 },
+    edg: { xp: 0, score: 0, link: 0 },
   });
 
   const [combatData, setCombatData] = useState({
-    standardDamageMax: "",
-    standardDamage: "",
-    fatigueDamageMax: "",
-    fatigueDamage: "",
+    standardDamageMax: 0,
+    standardDamage: 0,
+    fatigueDamageMax: 0,
+    fatigueDamage: 0,
     stun: false,
     unconscious: false,
-    walk: "",
-    runEvade: "",
-    sprint: "",
-    climb: "",
-    crawl: "",
-    swim: "",
-    personalArmors: [{ name: "", location: "", type: "", m: "", b: "", e: "", x: "" }],
+    walk: 0,
+    runEvade: 0,
+    sprint: 0,
+    climb: 0,
+    crawl: 0,
+    swim: 0,
+    personalArmors: [{ name: "", location: "", type: "", m: 0, b: 0, e: 0, x: 0 }],
     personalWeapons: [
       {
-        name: "",
-        skill: "",
+        name: "Martial Arts",
+        skill: "Martial Arts",
         ap: "",
-        bd: "",
-        range1: "",
-        range2: "",
-        range3: "",
-        range4: "",
-        ammo: "",
-        notes: "",
+        bd: 0,
+        range1: 0,
+        range2: 0,
+        range3: 0,
+        range4: 0,
+        ammo: 0,
+        notes: "Range Melee",
       },
     ],
   });
@@ -94,17 +95,17 @@ export default function NewCharacter({ addCharacter }) {
     // Calculate values
     const { str, bod, rfl, wil } = attributes;
 
-    const standardDamageMax = bod.score * 3;
+    const standardDamageMax = bod.score * 2;
     const standardDamage = standardDamageMax;
-    const fatigueDamageMax = wil.score * 3;
+    const fatigueDamageMax = wil.score * 2;
     const fatigueDamage = fatigueDamageMax;
 
     const walk = str.score + rfl.score;
     const runEvade = 10 + walk + runningSkill;
     const sprint = runEvade * 2;
-    const climb = Math.ceil(walk / 2 + climbingSkill);
+    const climb = Math.ceil(walk / 2) + climbingSkill;
     const crawl = Math.ceil(walk / 4);
-    const swim = walk + swimmingSkill;
+    const swim = swimmingSkill ? walk + swimmingSkill : Math.floor(walk / 2);
 
     // Update combatData with calculated values
     setCombatData((prevData) => ({
@@ -179,7 +180,7 @@ export default function NewCharacter({ addCharacter }) {
         level: calculateLevel(0, selectedSkill.tnc),
       };
       setSkills([...skills, newSkill]);
-      setSubskill(""); // Clear the subskill input
+      setSubskill("");
     }
   }
 
@@ -472,13 +473,13 @@ export default function NewCharacter({ addCharacter }) {
                     </tr>
                   </StyledTableHead>
                   <StyledTableBody>
-                    {Object.entries(attributes).map(([key, { xp, score }]) => {
+                    {Object.entries(attributes).map(([key, { xp, score, link }]) => {
                       const attribute = key.toUpperCase();
                       return (
                         <tr key={key}>
                           <td>{attribute}</td>
                           <td>{score}</td>
-                          <td>-</td>
+                          <td>{link}</td>
                           <td>
                             <StyledSmallInput
                               type="number"
@@ -626,6 +627,10 @@ export default function NewCharacter({ addCharacter }) {
                           value={weapon.skill}
                           onChange={(e) => handleInputChangeWeapon(index, "skill", e.target.value)}
                         />
+                        <Dropdown options={weaponSkillList.map((skill) => skill.skill)} />
+                        {
+                          //TODO: add onChange function to update weapon.skill
+                        }
                       </td>
                       <td>
                         <StyledXSmallInput
