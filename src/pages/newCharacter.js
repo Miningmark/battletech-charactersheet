@@ -84,7 +84,10 @@ export default function NewCharacter({ addCharacter }) {
   const [skills, setSkills] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [subskill, setSubskill] = useState("");
-  const [biography, setBiography] = useState([]);
+  const [biography, setBiography] = useState([
+    { lifeEvent: "", duration: 10, notes: "" },
+    { lifeEvent: "", duration: 99, notes: "" },
+  ]);
   const [inventory, setInventory] = useState([]);
   const [cbills, setCbills] = useState(0);
   const [vehicles, setVehicles] = useState([]);
@@ -231,7 +234,7 @@ export default function NewCharacter({ addCharacter }) {
   }
 
   function handleAddLiveEvent() {
-    setBiography([...biography, { lifeEvent: "", age: "", notes: "" }]);
+    setBiography([...biography, { lifeEvent: "", duration: "", notes: "" }]);
   }
 
   function handleDeleteLiveEvent(index) {
@@ -831,38 +834,42 @@ export default function NewCharacter({ addCharacter }) {
                 </tr>
               </StyledTableHead>
               <StyledTableBody>
-                {biography.map((item, index) => (
-                  <tr key={index}>
-                    <td>
-                      <StyledLargeInput
-                        type="text"
-                        value={item.lifeEvent}
-                        onChange={(e) =>
-                          handleInputChangeLiveEvent(index, "lifeEvent", e.target.value)
-                        }
-                      />
-                    </td>
-                    <td>
-                      <StyledSmallInput
-                        type="number"
-                        value={item.age}
-                        onChange={(e) => handleInputChangeLiveEvent(index, "age", e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <StyledLargeInput
-                        type="text"
-                        value={item.notes}
-                        onChange={(e) => handleInputChangeLiveEvent(index, "notes", e.target.value)}
-                      />
-                    </td>
-                    <td>
-                      <DeleteButton onClick={() => handleDeleteLiveEvent(index)}>
-                        Delete
-                      </DeleteButton>
-                    </td>
-                  </tr>
-                ))}
+                {biography.map((item, index) => {
+                  const age = biography
+                    .slice(0, index + 1)
+                    .reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
+
+                  return (
+                    <tr key={index}>
+                      <td>
+                        <StyledLargeInput
+                          type="text"
+                          value={item.lifeEvent}
+                          onChange={(e) =>
+                            handleInputChangeLiveEvent(index, "lifeEvent", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>{age}</td>
+                      <td>
+                        <StyledLargeInput
+                          type="text"
+                          value={item.notes}
+                          onChange={(e) =>
+                            handleInputChangeLiveEvent(index, "notes", e.target.value)
+                          }
+                        />
+                      </td>
+                      <td>
+                        {index > 1 && (
+                          <DeleteButton onClick={() => handleDeleteLiveEvent(index)}>
+                            Delete
+                          </DeleteButton>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </StyledTableBody>
             </StyledTable>
             <br />
