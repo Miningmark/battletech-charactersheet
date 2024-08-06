@@ -73,6 +73,7 @@ export const StyledTableBody = styled.tbody`
     }
   }
 `;
+
 const StyledInput = styled.input`
   margin: 0;
 

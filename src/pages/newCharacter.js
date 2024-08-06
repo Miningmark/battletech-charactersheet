@@ -23,6 +23,7 @@ import { calculateLevel, calculateScore, calculateLink } from "@/lib/calculateVa
 import DeleteButton from "@/components/menu/elements/DeleteButton";
 import { weaponSkillList } from "@/lib/weaponSkillList";
 import { traitList } from "@/lib/traitList";
+import DropdownWeaponSkill from "@/components/menu/elements/DropdownWeaponSkill";
 
 export default function NewCharacter({ addCharacter }) {
   const router = useRouter();
@@ -39,14 +40,14 @@ export default function NewCharacter({ addCharacter }) {
     xpMax: 0,
   });
   const [attributes, setAttributes] = useState({
-    str: { xp: 0, score: 0, link: 0 },
-    bod: { xp: 0, score: 0, link: 0 },
-    rfl: { xp: 0, score: 0, link: 0 },
-    dex: { xp: 0, score: 0, link: 0 },
-    int: { xp: 0, score: 0, link: 0 },
-    wil: { xp: 0, score: 0, link: 0 },
-    cha: { xp: 0, score: 0, link: 0 },
-    edg: { xp: 0, score: 0, link: 0 },
+    str: { xp: 0, score: 0, link: -4 },
+    bod: { xp: 0, score: 0, link: -4 },
+    rfl: { xp: 0, score: 0, link: -4 },
+    dex: { xp: 0, score: 0, link: -4 },
+    int: { xp: 0, score: 0, link: -4 },
+    wil: { xp: 0, score: 0, link: -4 },
+    cha: { xp: 0, score: 0, link: -4 },
+    edg: { xp: 0, score: 0, link: -4 },
   });
 
   const [combatData, setCombatData] = useState({
@@ -68,7 +69,7 @@ export default function NewCharacter({ addCharacter }) {
         name: "Martial Arts",
         skill: "Martial Arts",
         ap: "",
-        bd: 0,
+        bd: "",
         range1: 0,
         range2: 0,
         range3: 0,
@@ -648,16 +649,13 @@ export default function NewCharacter({ addCharacter }) {
                           onChange={(e) => handleInputChangeWeapon(index, "name", e.target.value)}
                         />
                       </td>
-                      <td>
-                        <StyledXSmallInput
-                          type="text"
+                      <td style={{ overflow: "visible" }}>
+                        <DropdownWeaponSkill
+                          options={weaponSkillList.map((skill) => skill.skill)}
+                          onChange={handleInputChangeWeapon}
+                          index={index}
                           value={weapon.skill}
-                          onChange={(e) => handleInputChangeWeapon(index, "skill", e.target.value)}
                         />
-                        <Dropdown options={weaponSkillList.map((skill) => skill.skill)} />
-                        {
-                          //TODO: add onChange function to update weapon.skill
-                        }
                       </td>
                       <td>
                         <StyledXSmallInput
@@ -725,8 +723,8 @@ export default function NewCharacter({ addCharacter }) {
                 <tr>
                   <th>Trait</th>
                   <th>TP</th>
-                  <th>Page</th>
                   <th>XP</th>
+                  <th>Page</th>
                   <th> </th>
                 </tr>
               </StyledTableHead>
@@ -735,7 +733,6 @@ export default function NewCharacter({ addCharacter }) {
                   <tr key={index}>
                     <td>{trait.name}</td>
                     <td>{trait.tp}</td>
-                    <td>{trait.page}</td>
                     <td>
                       <StyledSmallInput
                         type="number"
@@ -743,6 +740,7 @@ export default function NewCharacter({ addCharacter }) {
                         onChange={(e) => handleChangeTrait(index, "xp", Number(e.target.value))}
                       />
                     </td>
+                    <td>{trait.page}</td>
                     <td>
                       <DeleteButton onClick={() => handleDeleteTrait(index)}>
                         Delete Trait
