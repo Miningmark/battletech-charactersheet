@@ -1,11 +1,11 @@
 // components/Dropdown.js
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const DropdownContainer = styled.div`
   position: relative;
   display: inline-block;
-  width: 150px;
+  min-width: 150px;
   height: 30px;
 
   @media (min-width: 500px) {
@@ -20,7 +20,7 @@ const DropdownButton = styled.button`
   margin: 0;
   border: none;
   cursor: pointer;
-  width: 100%;
+  min-width: 100%;
 `;
 
 const DropdownContent = styled.div`
@@ -52,10 +52,16 @@ const DropdownItem = styled.a`
   }
 `;
 
-export default function Dropdown({ options, onChange, defaultOption }) {
+export default function Dropdown({ options, onChange, defaultOption, index, value }) {
   const [title, setTitle] = useState(defaultOption ? defaultOption : "Select an option");
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+
+  useEffect(() => {
+    if (value === null) {
+      setTitle("Select an option");
+    }
+  }, [value]);
 
   function toggleDropdown() {
     setIsOpen(!isOpen);
@@ -63,9 +69,13 @@ export default function Dropdown({ options, onChange, defaultOption }) {
 
   function handleItemClick(option) {
     setIsOpen(false);
-    setTitle(option);
+    setTitle(option.name);
     if (onChange) {
-      onChange(option);
+      if (index != null) {
+        onChange({ option, index });
+      } else {
+        onChange(option);
+      }
     }
   }
 
@@ -74,7 +84,7 @@ export default function Dropdown({ options, onChange, defaultOption }) {
   }
 
   const filteredOptions = options.filter((option) =>
-    option.toLowerCase().includes(searchTerm.toLowerCase())
+    option.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -83,16 +93,19 @@ export default function Dropdown({ options, onChange, defaultOption }) {
       <DropdownContent $isopen={isOpen && "isOpen"}>
         {isOpen && (
           <>
-            <DropdownSearch
-              type="text"
-              placeholder="Search..."
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
+            {options.length > 5 && (
+              <DropdownSearch
+                type="text"
+                placeholder="Search..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+            )}
+
             {filteredOptions.length > 0 ? (
               filteredOptions.map((option, index) => (
                 <DropdownItem key={index} onClick={() => handleItemClick(option)}>
-                  {option}
+                  {option.name}
                 </DropdownItem>
               ))
             ) : (

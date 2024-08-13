@@ -24,6 +24,13 @@ import DeleteButton from "@/components/menu/elements/DeleteButton";
 import { weaponSkillList } from "@/lib/weaponSkillList";
 import { traitList } from "@/lib/traitList";
 import DropdownWeaponSkill from "@/components/menu/elements/DropdownWeaponSkill";
+import {
+  typeOfLifeEvents,
+  earlyChildhood,
+  lateChildhood,
+  higherEducation,
+  realLife,
+} from "@/lib/biographyModules";
 
 export default function NewCharacter({ addCharacter }) {
   const router = useRouter();
@@ -84,10 +91,7 @@ export default function NewCharacter({ addCharacter }) {
   const [skills, setSkills] = useState([]);
   const [selectedSkill, setSelectedSkill] = useState(null);
   const [subskill, setSubskill] = useState("");
-  const [biography, setBiography] = useState([
-    { lifeEvent: "", duration: 10, notes: "" },
-    { lifeEvent: "", duration: 99, notes: "" },
-  ]);
+  const [biography, setBiography] = useState([]);
   const [inventory, setInventory] = useState([]);
   const [cbills, setCbills] = useState(0);
   const [vehicles, setVehicles] = useState([]);
@@ -151,17 +155,14 @@ export default function NewCharacter({ addCharacter }) {
     }));
   }
 
-  function handleDropdownTrait(traitName) {
-    const trait = traitList.find((t) => t.trait === traitName);
-    if (trait) {
-      setSelectedTrait(trait);
-    }
+  function handleDropdownTrait(trait) {
+    setSelectedTrait(trait);
   }
 
   function handleAddTrait() {
     if (selectedTrait) {
       const newTrait = {
-        name: selectedTrait.trait,
+        name: selectedTrait.name,
         xp: 0,
         tp: 0,
         page: selectedTrait.page,
@@ -184,16 +185,13 @@ export default function NewCharacter({ addCharacter }) {
     setTraits(updatedTraits);
   }
 
-  function handleDropdownSkill(skillName) {
-    const skill = skillList.find((s) => s.skill === skillName);
-    if (skill) {
-      setSelectedSkill(skill);
-    }
+  function handleDropdownSkill(skill) {
+    setSelectedSkill(skill);
   }
 
   function handleAddSkill() {
     if (selectedSkill) {
-      const newSkillName = subskill ? `${selectedSkill.skill} / ${subskill}` : selectedSkill.skill;
+      const newSkillName = subskill ? `${selectedSkill.name} / ${subskill}` : selectedSkill.name;
       const newSkill = {
         name: newSkillName,
         xp: 0,
@@ -219,34 +217,57 @@ export default function NewCharacter({ addCharacter }) {
     setSkills(updatedSkills);
   }
 
-  function updateDamage(type, amount) {
-    setCombatData((prevData) => {
-      const currentValue = prevData[type];
-      const maxValue = prevData[`${type}Max`];
-
-      const newValue = Math.min(Math.max(0, currentValue + amount), maxValue);
-
-      return {
-        ...prevData,
-        [type]: newValue,
-      };
-    });
-  }
-
   function handleAddLiveEvent() {
-    setBiography([...biography, { lifeEvent: "", duration: "", notes: "" }]);
+    setBiography([...biography, { type: null, lifeEvent: null, duration: 0, notes: "" }]);
   }
 
   function handleDeleteLiveEvent(index) {
     setBiography(biography.filter((_, i) => i !== index));
   }
 
-  function handleInputChangeLiveEvent(index, field, value) {
-    const updatedBiography = biography.map((item, i) =>
-      i === index ? { ...item, [field]: value } : item
+  function handleLiveEventType({ option, index }) {
+    const updatedBiography = biography.map((liveEvent, i) =>
+      i === index ? { ...liveEvent, type: option.id, lifeEvent: null, duration: 0 } : liveEvent
     );
     setBiography(updatedBiography);
   }
+
+  function handleLiveEventLifeEvent({ option, index }) {
+    const updatedBiography = biography.map((liveEvent, i) =>
+      i === index ? { ...liveEvent, lifeEvent: option.id, duration: option.duration } : liveEvent
+    );
+    setBiography(updatedBiography);
+  }
+
+  function handleInputChangeLiveEventNote(index, value) {
+    const updatedBiography = biography.map((lifeEvent, i) =>
+      i === index ? { ...lifeEvent, notes: value } : lifeEvent
+    );
+    setBiography(updatedBiography);
+  }
+
+  function lifeEventOptionList(type) {
+    switch (type) {
+      case 0:
+        return earlyChildhood;
+      case 1:
+        return lateChildhood;
+      case 2:
+        return higherEducation.flatMap((school) =>
+          school.fields.map((field) => ({
+            name: `${school.school} - ${field.class}`,
+            type: field.class,
+            duration: field.duration,
+          }))
+        );
+      case 3:
+        return realLife;
+      default:
+        return [];
+    }
+  }
+
+  console.log(biography);
 
   function handleAddInventoryItem() {
     const newItem = {
@@ -383,12 +404,20 @@ export default function NewCharacter({ addCharacter }) {
   }
 
   function calculateLinkMod(links) {
-    // Links ist jetzt ein Array von Attributnamen in Uppercase
     return links.reduce((total, link) => {
       const attribute = attributes[link];
       return total + (attribute ? attribute.link : 0);
     }, 0);
   }
+
+  function handleStun() {
+    setCombatData({ ...combatData, stun: !combatData.stun });
+  }
+  function handleUnconscious() {
+    setCombatData({ ...combatData, unconscious: !combatData.unconscious });
+  }
+
+  const age = biography.reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
 
   return (
     <>
@@ -537,18 +566,24 @@ export default function NewCharacter({ addCharacter }) {
                     <p>
                       Standard Damage: {combatData.standardDamage}/{combatData.standardDamageMax}
                     </p>
-                    <button onClick={() => updateDamage("standardDamage", -1)}>-1</button>
-                    <button onClick={() => updateDamage("standardDamage", 1)}>+1</button>
                   </div>
                   <div style={{ display: "flex", gap: "10px" }}>
                     <p>
                       Fatigue Damage: {combatData.fatigueDamage}/{combatData.fatigueDamageMax}
                     </p>
-                    <button onClick={() => updateDamage("fatigueDamage", -1)}>-1</button>
-                    <button onClick={() => updateDamage("fatigueDamage", 1)}>+1</button>
                   </div>
                 </div>
-                <p>stun: checkbox, unconscious: checkbox</p>
+                <p>
+                  Stun: <input type="checkbox" value={combatData.stun} onChange={handleStun} />
+                </p>
+                <p>
+                  Unconscious:{" "}
+                  <input
+                    type="checkbox"
+                    value={combatData.unconscious}
+                    onChange={handleUnconscious}
+                  />
+                </p>
                 <br />
                 <p>Movement:</p>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr" }}>
@@ -600,22 +635,26 @@ export default function NewCharacter({ addCharacter }) {
                       </td>
                       <td>
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={armor.m}
                           onChange={(e) => handleInputChangeArmor(index, "m", e.target.value)}
                         />
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={armor.b}
                           onChange={(e) => handleInputChangeArmor(index, "b", e.target.value)}
                         />
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={armor.e}
                           onChange={(e) => handleInputChangeArmor(index, "e", e.target.value)}
                         />
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={armor.x}
                           onChange={(e) => handleInputChangeArmor(index, "x", e.target.value)}
                         />
@@ -636,7 +675,7 @@ export default function NewCharacter({ addCharacter }) {
                     <th>Name</th>
                     <th>Skill</th>
                     <th>AP/BD</th>
-                    <th>Range</th>
+                    <th>Range (m)</th>
                     <th>Ammo</th>
                     <th>Notes</th>
                     <th></th>
@@ -674,28 +713,33 @@ export default function NewCharacter({ addCharacter }) {
                       </td>
                       <td>
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={weapon.range1}
                           onChange={(e) => handleInputChangeWeapon(index, "range1", e.target.value)}
                         />
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={weapon.range2}
                           onChange={(e) => handleInputChangeWeapon(index, "range2", e.target.value)}
                         />
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={weapon.range3}
                           onChange={(e) => handleInputChangeWeapon(index, "range3", e.target.value)}
                         />
                         <StyledXSmallInput
-                          type="text"
+                          $controllelements="false"
+                          type="number"
                           value={weapon.range4}
                           onChange={(e) => handleInputChangeWeapon(index, "range4", e.target.value)}
                         />
                       </td>
                       <td>
                         <StyledXSmallInput
+                          $controllelements="false"
                           type="number"
                           value={weapon.ammo}
                           onChange={(e) => handleInputChangeWeapon(index, "ammo", e.target.value)}
@@ -756,7 +800,7 @@ export default function NewCharacter({ addCharacter }) {
             <br />
             <div style={{ height: "50px", display: "flex", gap: "5px", alignItems: "center" }}>
               <Dropdown
-                options={traitList.map((trait) => trait.trait)}
+                options={traitList}
                 onChange={handleDropdownTrait}
                 defaultOption="Select a trait"
               />
@@ -784,7 +828,7 @@ export default function NewCharacter({ addCharacter }) {
                   <tr key={index}>
                     <td>{skill.name}</td>
                     <td>{skill.level}</td>
-                    <td>{skill.link.join(", ")}</td>
+                    <td>{skill.link.join(", ").toUpperCase()}</td>
                     <td>{calculateLinkMod(skill.link)}</td>
                     <td>{skill.tnc}</td>
                     <td>
@@ -807,7 +851,7 @@ export default function NewCharacter({ addCharacter }) {
             <br />
             <div style={{ height: "50px", display: "flex", gap: "5px", alignItems: "center" }}>
               <Dropdown
-                options={skillList.map((skill) => skill.skill)}
+                options={skillList}
                 onChange={handleDropdownSkill}
                 defaultOption="Select a skill"
               />
@@ -827,49 +871,62 @@ export default function NewCharacter({ addCharacter }) {
             <StyledTable>
               <StyledTableHead>
                 <tr>
+                  <th>Type of Events</th>
                   <th>Life Event</th>
-                  <th>Age</th>
+                  <th>Duration</th>
                   <th>Other Notes</th>
                   <th></th>
                 </tr>
               </StyledTableHead>
               <StyledTableBody>
-                {biography.map((item, index) => {
-                  const age = biography
-                    .slice(0, index + 1)
-                    .reduce((acc, curr) => acc + (Number(curr.duration) || 0), 0);
-
+                {biography.map((lifeEvent, index) => {
                   return (
                     <tr key={index}>
-                      <td>
-                        <StyledLargeInput
-                          type="text"
-                          value={item.lifeEvent}
-                          onChange={(e) =>
-                            handleInputChangeLiveEvent(index, "lifeEvent", e.target.value)
+                      <td style={{ overflow: "visible" }}>
+                        <Dropdown
+                          options={typeOfLifeEvents}
+                          onChange={handleLiveEventType}
+                          defaultOption={
+                            lifeEvent.type
+                              ? typeOfLifeEvents.find((t) => t.type === lifeEvent.id)?.name
+                              : "Select type of Event "
                           }
+                          index={index}
                         />
                       </td>
-                      <td>{age}</td>
-                      <td>
-                        <StyledLargeInput
-                          type="text"
-                          value={item.notes}
-                          onChange={(e) =>
-                            handleInputChangeLiveEvent(index, "notes", e.target.value)
-                          }
-                        />
-                      </td>
-                      <td>
-                        {index > 1 && (
-                          <DeleteButton onClick={() => handleDeleteLiveEvent(index)}>
-                            Delete
-                          </DeleteButton>
+                      <td style={{ overflow: "visible" }}>
+                        {lifeEvent.type != null && (
+                          <Dropdown
+                            options={lifeEventOptionList(lifeEvent.type)}
+                            onChange={handleLiveEventLifeEvent}
+                            index={index}
+                            value={biography[index].lifeEvent}
+                          />
                         )}
+                      </td>
+                      <td>{lifeEvent.duration}</td>
+                      <td>
+                        <StyledLargeInput
+                          type="text"
+                          value={lifeEvent.notes}
+                          onChange={(e) => handleInputChangeLiveEventNote(index, e.target.value)}
+                        />
+                      </td>
+                      <td>
+                        <DeleteButton onClick={() => handleDeleteLiveEvent(index)}>
+                          Delete
+                        </DeleteButton>
                       </td>
                     </tr>
                   );
                 })}
+                <tr>
+                  <td></td>
+                  <td></td>
+                  <td>Age: {age}</td>
+                  <td></td>
+                  <td></td>
+                </tr>
               </StyledTableBody>
             </StyledTable>
             <br />

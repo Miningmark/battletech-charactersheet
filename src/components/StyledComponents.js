@@ -77,6 +77,13 @@ export const StyledTableBody = styled.tbody`
 const StyledInput = styled.input`
   margin: 0;
 
+  ${({ $controllelements }) =>
+    $controllelements &&
+    `&::-webkit-inner-spin-button,
+      &::-webkit-outer-spin-button {
+      -webkit-appearance: none;
+    }`}
+
   @media (min-width: 700px) {
     margin: 5px;
   }
