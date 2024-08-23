@@ -18,3 +18,16 @@ export const encumbranceTable = [
     overloaded: (str) => str * 45,
   },
 ];
+
+export function getEncumberedValue(str) {
+  const entry = encumbranceTable.find((e) => e.str === str);
+
+  if (entry) {
+    return typeof entry.encumbered === "function" ? entry.encumbered(str) : entry.encumbered;
+  } else if (str > 11) {
+    const lastEntry = encumbranceTable[encumbranceTable.length - 1];
+    return lastEntry.encumbered(str);
+  } else {
+    return null;
+  }
+}

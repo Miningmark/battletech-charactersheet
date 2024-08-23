@@ -31,6 +31,11 @@ import {
   higherEducation,
   realLife,
 } from "@/lib/biographyModules";
+import { encumbranceTable, getEncumberedValue } from "@/lib/encumbranceTable";
+
+const StyledInventoryWeight = styled.p`
+  color: ${({ $overweight, theme }) => ($overweight ? "var(--danger)" : theme.text)};
+`;
 
 export default function NewCharacter({ addCharacter }) {
   const router = useRouter();
@@ -93,17 +98,23 @@ export default function NewCharacter({ addCharacter }) {
   const [subskill, setSubskill] = useState("");
   const [biography, setBiography] = useState([]);
   const [inventory, setInventory] = useState([]);
+  const [inventoryWeight, setInventoryWeight] = useState(0);
+  const [maxInventoryWeight, setMaxInventoryWeight] = useState(0);
   const [cbills, setCbills] = useState(0);
   const [vehicles, setVehicles] = useState([]);
 
   useEffect(() => {
+    //extract values from attributes
+    const { str, bod, rfl, wil } = attributes;
+
     // Ensure skills are properly set up
     const runningSkill = skills.find((skill) => skill.name === "Running")?.level || 0;
     const climbingSkill = skills.find((skill) => skill.name === "Climbing")?.level || 0;
     const swimmingSkill = skills.find((skill) => skill.name === "Swimming")?.level || 0;
 
+    setMaxInventoryWeight(getEncumberedValue(str.score));
+
     // Calculate values
-    const { str, bod, rfl, wil } = attributes;
 
     const standardDamageMax = bod.score * 2;
     const standardDamage = standardDamageMax;
@@ -131,7 +142,15 @@ export default function NewCharacter({ addCharacter }) {
       crawl,
       swim,
     }));
-  }, [attributes, skills]);
+  }, [attributes, skills, maxInventoryWeight]);
+
+  useEffect(() => {
+    setInventoryWeight(
+      inventory
+        .filter((item) => item.active)
+        .reduce((sum, item) => sum + item.weight * item.qty, 0) / 1000
+    );
+  }, [inventory]);
 
   function handleChangePersonalData(e) {
     const { name, value } = e.target;
@@ -268,8 +287,6 @@ export default function NewCharacter({ addCharacter }) {
     }
   }
 
-  console.log(biography);
-
   function handleAddInventoryItem() {
     const newItem = {
       equipment: "New Item",
@@ -280,7 +297,7 @@ export default function NewCharacter({ addCharacter }) {
       page: "",
       notes: "",
     };
-    setInventory([...inventory, newItem]);
+    setInventory((prevInventory) => [...prevInventory, newItem]);
   }
 
   function handleDeleteInventoryItem(index) {
@@ -924,7 +941,7 @@ export default function NewCharacter({ addCharacter }) {
                 <tr>
                   <td></td>
                   <td></td>
-                  <td>Age: {age}</td>
+                  <td>Age: min.{age} Years</td>
                   <td></td>
                   <td></td>
                 </tr>
@@ -944,6 +961,18 @@ export default function NewCharacter({ addCharacter }) {
                 onChange={(e) => handleInputChangeCbills(e.target.value)}
               />
             </p>
+            <StyledInventoryWeight $overweight={inventoryWeight > maxInventoryWeight ? 1 : 0}>
+              Weight: {inventoryWeight} / {maxInventoryWeight} Kg{" "}
+              {
+                inventoryWeight > 3 * maxInventoryWeight
+                  ? "overloaded"
+                  : inventoryWeight > 2 * maxInventoryWeight
+                  ? "very Encumbered"
+                  : inventoryWeight > maxInventoryWeight
+                  ? "encumbered"
+                  : "" //TODO: Falsche berechnung *2 *3 nicht richtig
+              }
+            </StyledInventoryWeight>
             <StyledTable>
               <StyledTableHead>
                 <tr>
