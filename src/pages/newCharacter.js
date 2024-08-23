@@ -258,6 +258,7 @@ export default function NewCharacter({ addCharacter }) {
             name: `${school.school} - ${field.class}`,
             type: field.class,
             duration: field.duration,
+            id: field.id,
           }))
         );
       case 3:
